@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <title>SiMatik</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.11/contrib/auto-render.min.js"></script>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#18233d;background:#f4f7fc;font-size:16px;font-synthesis:none}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:linear-gradient(160deg,#f6f8ff,#eef5f8 70%);-webkit-tap-highlight-color:transparent}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .hidden{display:none!important}
+    .shell{width:min(100%,680px);margin:0 auto;padding:24px 18px 40px}
+    .brand{display:flex;align-items:center;gap:11px;margin:4px 0 28px;color:#32508e;font-weight:800;letter-spacing:.02em}
+    .brand-mark{display:grid;place-items:center;width:42px;height:42px;border-radius:15px;background:#dce8ff;font-size:22px}
+    .card{background:#fff;border:1px solid #e4eaf4;border-radius:24px;padding:24px;box-shadow:0 14px 36px #233b6410}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:clamp(25px,7vw,34px);line-height:1.15;margin-bottom:10px;color:#1d2d52}
+    h2{font-size:22px;margin-bottom:8px}
+    .muted{color:#697794;line-height:1.55}
+    .field{display:block;margin:18px 0}
+    .field span{display:block;font-weight:700;margin-bottom:8px;color:#344362}
+    input,select,textarea{width:100%;min-height:52px;border:1.5px solid #d9e1ef;border-radius:14px;padding:12px 14px;background:#fff;color:#18233d;outline:none}
+    input:focus,select:focus,textarea:focus{border-color:#547de2;box-shadow:0 0 0 3px #547de21b}
+    .button{border:0;border-radius:15px;min-height:54px;padding:13px 18px;font-weight:800;transition:transform .15s,background .15s}
+    .button:active{transform:scale(.98)}
+    .primary{background:#416cda;color:#fff;box-shadow:0 7px 15px #416cda2c}
+    .primary:disabled{opacity:.55;box-shadow:none}
+    .secondary{background:#edf2fb;color:#344362}
+    .danger{background:#d84154;color:#fff}
+    .full{width:100%}
+    .error{color:#a22b3c;background:#fff0f1;border-radius:12px;padding:12px 14px;line-height:1.45;margin:14px 0}
+    .loading{display:flex;align-items:center;gap:12px;color:#52627f;padding:18px 0}
+    .spinner{width:22px;height:22px;border:3px solid #dce5f5;border-top-color:#416cda;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .identity{background:#f0f5ff;border-radius:16px;padding:16px;line-height:1.6;margin:22px 0}
+    .rule{padding:13px 0;border-bottom:1px solid #edf0f6;line-height:1.5}
+    .rule:last-child{border:0}
+    .tip{padding:14px;border-radius:14px;background:#fff8df;color:#685521;line-height:1.5;margin:16px 0}
+    .exam-top{position:sticky;top:0;z-index:4;background:#f4f7fcf2;backdrop-filter:blur(12px);padding:10px max(14px,env(safe-area-inset-left));border-bottom:1px solid #e4eaf4}
+    .top-inner{max-width:760px;margin:auto;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+    .exam-name{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .student-name{font-size:13px;color:#6a7892;margin-top:3px}
+    .top-right{display:flex;align-items:center;gap:9px}
+    .timer{padding:9px 12px;border-radius:12px;background:#e8efff;color:#264ca8;font-variant-numeric:tabular-nums;font-weight:900;white-space:nowrap}
+    .timer.low{background:#fff0e9;color:#b34324}
+    .violation-badge{font-size:13px;font-weight:700;color:#824526;white-space:nowrap}
+    .exam-shell{max-width:760px;margin:auto;padding:16px 16px calc(112px + env(safe-area-inset-bottom))}
+    .question-strip{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 14px;scrollbar-width:thin}
+    .qnum{flex:0 0 46px;height:46px;border:1px solid #dce4f2;background:#fff;border-radius:14px;color:#65728c;font-weight:800}
+    .qnum.answered{background:#e5f5ed;color:#267247;border-color:#c7ead5}
+    .qnum.active{background:#416cda;color:#fff;border-color:#416cda}
+    .question-card{padding:22px;animation:appear .2s ease-out}
+    @keyframes appear{from{opacity:.6;transform:translateY(5px)}to{opacity:1;transform:none}}
+    .question-count{font-weight:800;color:#74819a;margin-bottom:12px}
+    .question-text{font-size:clamp(20px,5.5vw,25px);line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;color:#192849}
+    .question-image{max-width:100%;max-height:330px;object-fit:contain;border-radius:16px;margin:12px 0}
+    .options{display:grid;gap:11px;margin-top:22px}
+    .option{display:flex;align-items:flex-start;gap:13px;text-align:left;width:100%;min-height:60px;padding:13px;border:1.5px solid #e0e7f2;background:#fff;border-radius:16px;color:#263653;line-height:1.5}
+    .option.selected{border-color:#416cda;background:#eef3ff;color:#25469a}
+    .option-letter{flex:0 0 32px;height:32px;border-radius:11px;background:#f0f3f9;display:grid;place-items:center;font-weight:900;color:#52627f}
+    .option.selected .option-letter{background:#416cda;color:#fff}
+    .answer-input{margin-top:18px;min-height:58px;font-size:18px}
+    .essay-input{min-height:180px;resize:vertical}
+    .bottom-nav{position:fixed;z-index:5;bottom:0;left:0;right:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:#ffffffed;backdrop-filter:blur(14px);border-top:1px solid #e4eaf4}
+    .nav-inner{max-width:760px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .save-state{font-size:13px;text-align:center;color:#687795;padding:0 0 8px}
+    .save-state.bad{color:#b53242}
+    .overlay{position:fixed;inset:0;z-index:20;background:#af2939f5;color:#fff;display:grid;place-items:center;padding:24px;text-align:center}
+    .overlay-card{width:min(100%,470px)}
+    .confirm-overlay{background:#18233d99;backdrop-filter:blur(5px);color:#18233d}
+    .confirm-dialog{width:min(100%,440px);padding:24px;border-radius:22px;background:#fff;box-shadow:0 20px 60px #101b3540;text-align:left}
+    .confirm-dialog h2{color:#1d2d52}
+    .confirm-dialog .nav-inner{margin-top:20px}
+    .overlay-symbol{font-size:58px;margin-bottom:12px}
+    .overlay h1{color:#fff}
+    .pause-count{font-size:46px;font-weight:900;font-variant-numeric:tabular-nums;margin:22px 0}
+    .overlay .button{margin-top:18px}
+    .result-icon{font-size:56px;margin-bottom:10px}
+    .score-box{background:#edf4ff;padding:18px;border-radius:17px;margin:20px 0}
+    .score-value{font-size:42px;font-weight:900;color:#315ec4}
+    .review-item{padding:17px 0;border-top:1px solid #edf0f6;line-height:1.55}
+    .correct{color:#23804a;font-weight:800}.incorrect{color:#b83243;font-weight:800}
+    .no-select{user-select:none;-webkit-user-select:none}
+    @media(max-width:430px){.shell{padding:16px 14px 32px}.card{padding:20px;border-radius:21px}.exam-shell{padding-left:13px;padding-right:13px}.question-card{padding:18px}.top-inner{grid-template-columns:minmax(0,1fr) auto}.violation-badge{font-size:12px}}
+  </style>
+</head>
+<body>
+  <div class="shell" id="app">
+    <div class="brand"><div class="brand-mark">✎</div><div><span>SiMatik</span><div class="muted" style="font-size:12px;font-weight:600;letter-spacing:0">Sistem Asesmen Matematika Terintegrasi dan Kredibel</div></div></div>
+    <main id="content"></main>
+  </div>
+  <section id="examView" class="hidden"></section>
+  <div id="overlay" class="overlay hidden" role="alertdialog" aria-live="assertive"></div>
+  <script>
+    const content = document.getElementById('content');
+    const examView = document.getElementById('examView');
+    const overlay = document.getElementById('overlay');
+    const state = {session:'',code:'',examName:'',studentName:'',classroom:'',number:'',questions:[],answers:{},deadline:0,pauseUntil:0,
+      violations:0,maxViolations:0,pauseSeconds:60,clockOffset:0,current:0,saveTimer:0,clockTimer:0,pauseTimer:0,
+      blurTimer:0,fullscreenActive:false,violationBusy:false,submitBusy:false,confirmingSubmit:false,saving:false,
+      savePending:false,lastSaveAt:0,localStorageIssue:false};
+    let classOptions = [];
+    const storageKey = () => ['ujian',state.code,state.classroom,state.number].join(':');
+    const markerKey = 'ujian-session-marker';
+
+    function rpc(name, ...args) {
+      if (typeof google === 'undefined' || !google.script || !google.script.run) {
+        return fetch('api.php',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({action:name,args})})
+          .then(async response => {
+            let payload;
+            try { payload = await response.json(); }
+            catch (error) { throw new Error('Respons server PHP tidak valid. Periksa pengaturan PHP dan URL Apps Script.'); }
+            if (!response.ok || !payload.ok) throw new Error(payload.error || 'Koneksi ke server gagal.');
+            return payload.result;
+          });
+      }
+      return new Promise((resolve,reject) => {
+        const runner = google.script.run.withSuccessHandler(resolve).withFailureHandler(error => {
+          let message = error && error.message ? error.message : 'Koneksi bermasalah. Coba lagi.';
+          message = String(message).replace(/^(Exception|Error):\s*/,'');
+          if (/^(Service invoked|TypeError:|ReferenceError:|Cannot |Invalid argument|You do not have permission)/i.test(message)) {
+            console.error(error);
+            message = 'Terjadi kendala di server. Coba lagi atau hubungi guru.';
+          }
+          reject(new Error(message));
+        });
+        runner[name](...args);
+      });
+    }
+    function escapeHtml(value) {
+      return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    }
+    function renderMath(root) {
+      if (window.renderMathInElement) renderMathInElement(root,{delimiters:[
+        {left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},
+        {left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}
+      ],throwOnError:false});
+    }
+    function showError(target,message) {
+      const el = document.getElementById(target);
+      if (el) { el.textContent = message; el.classList.remove('hidden'); }
+    }
+    function loading(message='Sebentar ya, sedang memuat…') {
+      document.getElementById('app').classList.remove('hidden');
+      examView.classList.add('hidden');
+      content.innerHTML = `<div class="card"><div class="loading"><span class="spinner"></span><span>${escapeHtml(message)}</span></div></div>`;
+    }
+    async function init() {
+      loading('Menyiapkan ujian…');
+      try { classOptions = await rpc('getLoginOptions'); renderLogin(); }
+      catch (error) { content.innerHTML = `<div class="card"><h1>Belum bisa dibuka</h1><p class="muted">${escapeHtml(error.message)}</p></div>`; }
+    }
+    function renderLogin(message='') {
+      const options = classOptions.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
+      content.innerHTML = `<div class="card">
+        <h1>Siap untuk ujian?</h1><p class="muted">Masukkan data dirimu dengan benar, ya.</p>
+        ${message ? `<div class="error" id="loginError">${escapeHtml(message)}</div>` : '<div class="error hidden" id="loginError"></div>'}
+        <form id="loginForm">
+          <label class="field"><span>Kelas</span><select name="classroom" required><option value="">Pilih kelas</option>${options}</select></label>
+          <label class="field"><span>Nomor absen</span><input name="number" type="number" inputmode="numeric" min="1" step="1" placeholder="Contoh: 7" required></label>
+          <label class="field"><span>Token ujian</span><input name="token" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Ketik token persis seperti di spreadsheet" required></label>
+          <button class="button primary full" type="submit">Masuk ke ujian</button>
+        </form>
+        <p class="muted" style="font-size:14px;margin:18px 0 0">Pastikan koneksi internetmu stabil sebelum mulai.</p>
+      </div>`;
+      document.getElementById('loginForm').addEventListener('submit', login);
+    }
+    async function login(event) {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const input = {classroom:form.get('classroom'),number:form.get('number'),token:form.get('token')};
+      const button = event.currentTarget.querySelector('button');
+      button.disabled = true; button.textContent = 'Memeriksa…';
+      try {
+        const response = await rpc('loginStudent',input);
+        if (response.state === 'alreadyCompleted') return renderAlreadyCompleted(response);
+        Object.assign(state,{code:response.code,examName:response.name,session:response.session,studentName:response.studentName,
+          classroom:response.classroom,number:response.number,maxViolations:response.maxViolations,
+          pauseSeconds:response.pauseSeconds});
+        if (response.state === 'rules') return renderIdentity(response);
+        state.questions = response.questions;
+        state.answers = response.answers || {};
+        state.deadline = response.deadline;
+        state.pauseUntil = response.pauseUntil || 0;
+        state.violations = response.violations || 0;
+        state.clockOffset = response.serverNow - Date.now();
+        const local = readLocalAnswers();
+        Object.assign(state.answers,local);
+        if (sessionStorage.getItem(markerKey) === [state.code,state.classroom,state.number].join('|')) {
+          startExamUI();
+          await sendViolation('Memuat ulang halaman');
+        } else startExamUI();
+      } catch (error) {
+        button.disabled = false; button.textContent = 'Masuk ke ujian';
+        renderLogin(error.message);
+      }
+    }
+    function renderAlreadyCompleted(response) {
+      content.innerHTML = `<div class="card">
+        <div class="result-icon">✅</div><h1>Ujian sudah dikerjakan</h1>
+        <p class="muted">${escapeHtml(response.studentName)}, kamu sudah mengumpulkan ujian <strong>${escapeHtml(response.name)}</strong>. Form hanya bisa diisi satu kali dan jawaban tidak dapat dikirim ulang.</p>
+        <button id="backToLogin" class="button primary full">Kembali ke login</button>
+      </div>`;
+      document.getElementById('backToLogin').onclick = () => renderLogin();
+    }
+    function renderIdentity(response) {
+      content.innerHTML = `<div class="card">
+        <h1>Periksa identitasmu</h1>
+        <div class="identity">Apakah kamu <strong>${escapeHtml(response.studentName)}</strong>, kelas <strong>${escapeHtml(response.classroom)}</strong> absen <strong>${escapeHtml(response.number)}</strong>?</div>
+        <div class="nav-inner"><button id="notMe" class="button secondary">Bukan</button><button id="yesMe" class="button primary">Ya, itu saya</button></div>
+      </div>`;
+      document.getElementById('notMe').onclick = renderLogin;
+      document.getElementById('yesMe').onclick = () => renderRules(response);
+    }
+    function renderRules(response) {
+      content.innerHTML = `<div class="card">
+        <h1>${escapeHtml(response.name)}</h1>
+        <p class="muted">Baca aturan ini sebelum mulai, ya.</p>
+        <div class="rule">🧠 Jumlah soal: <strong>${response.questionCount}</strong></div>
+        <div class="rule">⏱️ Waktu: <strong>${response.durationMinutes} menit</strong></div>
+        <div class="rule">🚦 Batas pelanggaran: <strong>${response.maxViolations === 0 ? 'tidak dibatasi' : response.maxViolations + ' kali'}</strong></div>
+        <div class="rule">💾 Jawaban tersimpan otomatis saat koneksi tersedia.</div>
+        <div class="tip">📵 Nyalakan mode Jangan Ganggu agar notifikasi tidak terhitung keluar halaman.</div>
+        <button id="startButton" class="button primary full">Mulai Ujian</button>
+      </div>`;
+      document.getElementById('startButton').onclick = () => beginExam(response);
+    }
+    async function beginExam(response) {
+      loading('Menyiapkan soal ujian…');
+      try {
+        try { await document.documentElement.requestFullscreen(); state.fullscreenActive = !!document.fullscreenElement; }
+        catch (error) { state.fullscreenActive = false; }
+        const exam = await rpc('startExam',state.code,state.session);
+        if (exam.state === 'alreadyCompleted') return renderAlreadyCompleted(exam);
+        if (exam.state === 'finished') return renderResult(exam.result);
+        state.questions = exam.questions; state.answers = exam.answers || {};
+        state.deadline = exam.deadline; state.pauseUntil = exam.pauseUntil || 0;
+        state.violations = exam.violations || 0; state.clockOffset = exam.serverNow - Date.now();
+        sessionStorage.setItem(markerKey,[state.code,state.classroom,state.number].join('|'));
+        startExamUI();
+      } catch (error) {
+        if (error.message.includes('SESI_LAIN')) return sessionReplaced();
+        renderLogin(error.message);
+      }
+    }
+    function startExamUI() {
+      document.getElementById('app').classList.add('hidden');
+      examView.classList.remove('hidden');
+      examView.innerHTML = `<header class="exam-top"><div class="top-inner">
+          <div><div class="exam-name" id="examName"></div><div class="student-name">${escapeHtml(state.studentName)} · ${escapeHtml(state.classroom)} absen ${escapeHtml(state.number)}</div></div>
+          <div class="top-right"><span class="violation-badge" id="violationCount"></span><span class="timer" id="timer">--:--</span></div>
+        </div></header>
+        <main class="exam-shell no-select">
+          <nav id="questionStrip" class="question-strip" aria-label="Nomor soal"></nav>
+          <article id="questionCard" class="card question-card"></article>
+        </main>
+        <footer class="bottom-nav"><div id="saveState" class="save-state">Jawaban tersimpan di perangkat</div><div class="nav-inner">
+          <button id="previous" class="button secondary">Sebelumnya</button><button id="next" class="button primary">Berikutnya</button>
+        </div></footer>`;
+      document.getElementById('examName').textContent = state.examName || state.code;
+      document.getElementById('previous').onclick = () => moveQuestion(-1);
+      document.getElementById('next').onclick = () => state.current === state.questions.length - 1 ? confirmSubmit() : moveQuestion(1);
+      renderQuestion(); updateTimer(); updateViolationCount();
+      clearInterval(state.clockTimer);
+      state.clockTimer = setInterval(updateTimer,1000);
+      if (state.pauseUntil > Date.now() + state.clockOffset) showPauseOverlay(state.pauseUntil,'Sesi ujian sedang dijeda.');
+      installAntiCheat();
+      if (state.localStorageIssue) setSaveState('Penyimpanan perangkat tidak tersedia · jawaban tetap dikirim ke server',true);
+      saveAnswers(false);
+    }
+    function renderQuestion() {
+      const q = state.questions[state.current];
+      if (!q) return;
+      const strip = document.getElementById('questionStrip');
+      strip.innerHTML = state.questions.map((item,index) => `<button class="qnum ${index === state.current ? 'active' : ''} ${isAnswered(item) ? 'answered' : ''}" data-index="${index}" aria-label="Soal ${index+1}">${index+1}</button>`).join('');
+      strip.querySelectorAll('button').forEach(button => button.onclick = () => { state.current = Number(button.dataset.index); renderQuestion(); });
+      let answerControl = '';
+      if (q.type === 'PG') {
+        answerControl = `<div class="options">${q.options.map(option => `<button class="option ${state.answers[String(q.number)] === option.original ? 'selected' : ''}" data-answer="${escapeHtml(option.original)}">
+          <span class="option-letter">${escapeHtml(option.label)}</span><span>${escapeHtml(option.text).replace(/\n/g,'<br>')}</span></button>`).join('')}</div>`;
+      } else if (q.type === 'ISIAN') {
+        answerControl = `<input class="answer-input" id="answerField" type="text" inputmode="decimal" autocomplete="off" placeholder="Tulis jawabanmu" value="${escapeHtml(state.answers[String(q.number)] || '')}">`;
+      } else {
+        answerControl = `<textarea class="answer-input essay-input" id="answerField" placeholder="Tuliskan cara dan jawabanmu…">${escapeHtml(state.answers[String(q.number)] || '')}</textarea>`;
+      }
+      document.getElementById('questionCard').innerHTML = `<div class="question-count">SOAL ${state.current+1} DARI ${state.questions.length}</div>
+        <div class="question-text">${escapeHtml(q.question).replace(/\n/g,'<br>')}</div>
+        ${q.image ? `<img class="question-image" src="${escapeHtml(q.image)}" alt="Gambar soal" loading="lazy" referrerpolicy="no-referrer">` : ''}
+        ${answerControl}`;
+      const card = document.getElementById('questionCard');
+      card.querySelectorAll('.option').forEach(button => button.onclick = () => {
+        state.answers[String(q.number)] = button.dataset.answer; renderQuestion(); saveAnswers(true);
+      });
+      const field = document.getElementById('answerField');
+      if (field) field.addEventListener('input',() => { state.answers[String(q.number)] = field.value; saveAnswers(true); });
+      renderMath(card);
+      document.getElementById('previous').disabled = state.current === 0;
+      document.getElementById('previous').style.opacity = state.current === 0 ? '.5' : '1';
+      document.getElementById('next').textContent = state.current === state.questions.length - 1 ? 'Kumpulkan' : 'Berikutnya';
+      const active = strip.querySelector('.active');
+      if (active) active.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    }
+    function isAnswered(question) {
+      return String(state.answers[String(question.number)] || '').trim() !== '';
+    }
+    function moveQuestion(delta) {
+      state.current = Math.max(0,Math.min(state.questions.length-1,state.current+delta));
+      renderQuestion();
+    }
+    function readLocalAnswers() {
+      try { return JSON.parse(localStorage.getItem(storageKey()) || '{}'); }
+      catch (error) { state.localStorageIssue = true; return {}; }
+    }
+    function saveAnswers(changed) {
+      try { localStorage.setItem(storageKey(),JSON.stringify(state.answers)); }
+      catch (error) {
+        state.localStorageIssue = true;
+        setSaveState('Penyimpanan perangkat tidak tersedia · jawaban tetap dikirim ke server',true);
+      }
+      if (changed) setSaveState('Menyimpan…');
+      state.savePending = true;
+      scheduleSave();
+    }
+    function scheduleSave() {
+      if (state.saveTimer || state.saving || !state.savePending || state.submitBusy) return;
+      const delay = Math.max(0,6000-(Date.now()-state.lastSaveAt));
+      state.saveTimer = setTimeout(flushAnswers,delay);
+    }
+
+    async function flushAnswers() {
+      state.saveTimer = 0;
+      if (state.saving || !state.savePending || state.submitBusy) return;
+      state.saving = true;
+      state.savePending = false;
+      state.lastSaveAt = Date.now();
+      try {
+        const result = await rpc('saveAnswers',state.code,state.session,state.answers);
+        if (result.state === 'finished') return renderResult(result.result);
+        if (result.serverNow) state.clockOffset = result.serverNow - Date.now();
+        if (!state.savePending) setSaveState('Tersimpan ✓');
+      } catch (error) {
+        if (error.message.includes('SESI_LAIN')) return sessionReplaced();
+        setSaveState('Koneksi bermasalah · jawaban tetap tersimpan di perangkat',true);
+        state.savePending = true;
+      } finally {
+        state.saving = false;
+        scheduleSave();
+      }
+    }
+    function setSaveState(text,bad=false) {
+      const node = document.getElementById('saveState');
+      if (!node) return;
+      node.textContent = text; node.classList.toggle('bad',bad);
+    }
+    function updateTimer() {
+      const timer = document.getElementById('timer');
+      if (!timer) return;
+      const remaining = Math.max(0,state.deadline-(Date.now()+state.clockOffset));
+      const seconds = Math.ceil(remaining/1000);
+      timer.textContent = Math.floor(seconds/60).toString().padStart(2,'0')+':'+(seconds%60).toString().padStart(2,'0');
+      timer.classList.toggle('low',seconds < 300);
+      if (seconds <= 0 && !state.submitBusy) submitExam(true);
+    }
+    function updateViolationCount() {
+      const node = document.getElementById('violationCount');
+      if (node) node.textContent = `⚠️ ${state.violations} pelanggaran`;
+    }
+    function installAntiCheat() {
+      document.addEventListener('visibilitychange',() => {
+        if (document.hidden && !state.confirmingSubmit && !state.submitBusy) sendViolation('Berpindah aplikasi atau tab');
+      });
+      window.addEventListener('blur',() => {
+        clearTimeout(state.blurTimer);
+        state.blurTimer = setTimeout(() => {
+          if (!state.confirmingSubmit && !state.submitBusy) sendViolation('Jendela ujian tidak aktif');
+        },2000);
+      });
+      window.addEventListener('focus',() => clearTimeout(state.blurTimer));
+      document.addEventListener('fullscreenchange',() => {
+        if (state.fullscreenActive && !document.fullscreenElement && !state.confirmingSubmit && !state.submitBusy) {
+          sendViolation('Keluar dari layar penuh');
+        }
+      });
+      ['copy','cut','paste','contextmenu'].forEach(name => document.addEventListener(name,event => {
+        if (examView && !examView.classList.contains('hidden')) event.preventDefault();
+      }));
+      document.addEventListener('selectstart',event => {
+        if (examView && !examView.classList.contains('hidden')) event.preventDefault();
+      });
+    }
+    async function sendViolation(reason) {
+      if (state.violationBusy || state.confirmingSubmit || state.submitBusy ||
+        overlay.classList.contains('hidden') === false || examView.classList.contains('hidden')) return;
+      state.violationBusy = true;
+      overlay.classList.remove('hidden');
+      overlay.innerHTML = `<div class="overlay-card"><div class="overlay-symbol">⚠️</div><h1>Perhatian, ya!</h1><p>${escapeHtml(reason)}</p><p>Sedang mencatat pelanggaranmu…</p><div class="spinner" style="margin:18px auto;border-color:#ffffff55;border-top-color:#fff"></div></div>`;
+      if (navigator.vibrate) navigator.vibrate([180,80,180]);
+      try {
+        const result = await rpc('reportViolation',state.code,state.session,reason);
+        state.violations = result.violations; state.pauseUntil = result.pauseUntil;
+        updateViolationCount();
+        if (result.finished) return renderResult(result.result);
+        showPauseOverlay(result.pauseUntil,reason);
+      } catch (error) {
+        if (error.message.includes('SESI_LAIN')) return sessionReplaced();
+        overlay.innerHTML = `<div class="overlay-card"><div class="overlay-symbol">📶</div><h1>Koneksi terputus</h1><p>${escapeHtml(error.message)}</p><button id="retryViolation" class="button primary">Coba lagi</button></div>`;
+        document.getElementById('retryViolation').onclick = () => { overlay.classList.add('hidden'); state.violationBusy = false; sendViolation(reason); };
+      }
+    }
+    function showPauseOverlay(until,reason) {
+      overlay.classList.remove('hidden');
+      const update = () => {
+        const remaining = Math.max(0,Math.ceil((until-(Date.now()+state.clockOffset))/1000));
+        const lastChance = state.maxViolations > 0 && state.maxViolations-state.violations === 1;
+        overlay.innerHTML = `<div class="overlay-card"><div class="overlay-symbol">🛑</div><h1>Ujian dijeda</h1>
+          <p>${escapeHtml(reason)}</p><p>Pelanggaran ke-${state.violations}${state.maxViolations ? ' dari batas '+state.maxViolations : ''}.</p>
+          ${lastChance ? '<p><strong>Ini kesempatan terakhirmu. Hati-hati, ya!</strong></p>' : ''}
+          <div class="pause-count">${remaining > 0 ? remaining : '✓'}</div>
+          ${remaining > 0 ? '<p>Tunggu sampai jeda selesai. Waktu ujian tetap berjalan.</p>' : '<button id="continueExam" class="button primary full">Lanjutkan Ujian</button>'}</div>`;
+        if (remaining <= 0) document.getElementById('continueExam').onclick = resumeFullscreen;
+        else state.pauseTimer = setTimeout(update,1000);
+      };
+      clearTimeout(state.pauseTimer); update();
+    }
+    async function resumeFullscreen() {
+      try { await document.documentElement.requestFullscreen(); state.fullscreenActive = !!document.fullscreenElement; }
+      catch (error) { state.fullscreenActive = false; }
+      overlay.classList.add('hidden');
+      state.violationBusy = false;
+    }
+    function confirmSubmit() {
+      if (state.confirmingSubmit || state.submitBusy) return;
+      const unanswered = state.questions.filter(question => !isAnswered(question)).length;
+      state.confirmingSubmit = true;
+      overlay.classList.add('confirm-overlay');
+      overlay.classList.remove('hidden');
+      overlay.innerHTML = `<div class="confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+        <h2 id="confirmTitle">Kumpulkan jawaban?</h2>
+        <p>${unanswered
+          ? `Masih ada <strong>${unanswered} soal</strong> yang belum dijawab.`
+          : 'Semua soal sudah terjawab.'} Setelah dikumpulkan, jawaban tidak dapat diubah.</p>
+        <div class="nav-inner"><button id="cancelSubmit" class="button secondary">Periksa lagi</button>
+          <button id="confirmSubmit" class="button primary">Ya, kumpulkan</button></div></div>`;
+      document.getElementById('cancelSubmit').onclick = () => {
+        state.confirmingSubmit = false;
+        overlay.classList.add('hidden');
+        overlay.classList.remove('confirm-overlay');
+      };
+      document.getElementById('confirmSubmit').onclick = () => {
+        state.confirmingSubmit = false;
+        overlay.classList.add('hidden');
+        overlay.classList.remove('confirm-overlay');
+        submitExam(false);
+      };
+    }
+    async function submitExam(automatic) {
+      if (state.submitBusy) return;
+      state.confirmingSubmit = false;
+      state.submitBusy = true;
+      setSaveState(automatic ? 'Waktu habis, mengumpulkan…' : 'Mengumpulkan jawaban…');
+      try {
+        const result = await rpc('submitExam',state.code,state.session,state.answers);
+        renderResult(result.result);
+      } catch (error) {
+        state.submitBusy = false;
+        if (error.message.includes('SESI_LAIN')) return sessionReplaced();
+        setSaveState(error.message,true);
+      }
+    }
+    function renderResult(result) {
+      clearInterval(state.clockTimer); clearTimeout(state.saveTimer); clearTimeout(state.pauseTimer);
+      overlay.classList.add('hidden'); overlay.classList.remove('confirm-overlay');
+      examView.classList.add('hidden'); document.getElementById('app').classList.remove('hidden');
+      sessionStorage.removeItem(markerKey);
+      let scoreHtml = result.showScore && result.score
+        ? `<div class="score-box"><div class="score-value">${escapeHtml(result.score.value)}<span style="font-size:20px"> / 100</span></div>
+          <p class="muted" style="margin:6px 0 0">Poin berbobot: ${escapeHtml(result.score.total)} dari ${escapeHtml(result.score.max)} · PG benar: ${escapeHtml(result.score.correct)} dari ${escapeHtml(result.score.objectiveCount)}</p></div>` : '';
+      let pendingHtml = result.manualPending ? '<p class="tip">Nilai masih sementara karena jawaban ISIAN/ESSAY menunggu penilaian guru.</p>' : '';
+      let explanations = result.explanations && result.explanations.length ? `<section><h2>Pembahasan</h2>${result.explanations.map(item =>
+        `<div class="review-item"><strong>Soal ${escapeHtml(item.number)}</strong> · <span class="${item.manual?(item.pending?'incorrect':'correct'):(item.correct?'correct':'incorrect')}">${item.manual?(item.pending?'Menunggu penilaian guru':(item.score === '' || item.score == null ? `Belum dinilai: 0 / ${escapeHtml(item.maxScore)}` : `Nilai guru: ${escapeHtml(item.score)} / ${escapeHtml(item.maxScore)}`)):(item.correct?'Benar':'Perlu dipelajari lagi')}</span>
+        <div>${escapeHtml(item.question).replace(/\n/g,'<br>')}</div><div>Jawabanmu: ${escapeHtml(item.answer || 'Belum dijawab')}</div>
+        <div>Jawaban benar: ${escapeHtml(item.key || 'Dinilai oleh guru')}</div><div class="muted">${escapeHtml(item.explanation).replace(/\n/g,'<br>')}</div></div>`).join('')}</section>` : '';
+      content.innerHTML = `<div class="card"><div class="result-icon">${result.showScore ? '🎉' : '✅'}</div>
+        <h1>${result.showScore ? 'Hebat, ujian selesai!' : 'Jawaban sudah tersimpan'}</h1>
+        <p class="muted">${result.showScore ? 'Terima kasih sudah berusaha dengan baik.' : 'Kamu sudah menyelesaikan ujian. Nilai akan tersedia sesuai pengaturan guru.'}</p>
+        ${scoreHtml}${pendingHtml}${explanations}
+        <button id="backToLogin" class="button primary full" style="margin-top:22px">Keluar · Kembali ke login</button></div>`;
+      renderMath(content);
+      document.getElementById('backToLogin').onclick = () => {
+        try { localStorage.removeItem(storageKey()); }
+        catch (error) { state.localStorageIssue = true; }
+        state.session = '';
+        state.code = '';
+        state.examName = '';
+        state.studentName = '';
+        state.classroom = '';
+        state.number = '';
+        state.questions = [];
+        state.answers = {};
+        state.submitBusy = false;
+        state.confirmingSubmit = false;
+        renderLogin();
+      };
+    }
+    function sessionReplaced() {
+      clearInterval(state.clockTimer); clearTimeout(state.saveTimer);
+      overlay.classList.add('hidden'); examView.classList.add('hidden'); document.getElementById('app').classList.remove('hidden');
+      sessionStorage.removeItem(markerKey);
+      renderLogin('Akunmu login di perangkat lain. Masuk kembali jika ingin melanjutkan.');
+    }
+    document.addEventListener('DOMContentLoaded',init);
+  </script>
+</body>
+</html>

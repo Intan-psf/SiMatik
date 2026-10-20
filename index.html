@@ -107,12 +107,13 @@
       blurTimer:0,fullscreenActive:false,violationBusy:false,submitBusy:false,confirmingSubmit:false,saving:false,
       savePending:false,lastSaveAt:0,localStorageIssue:false};
     let classOptions = [];
+    const apiEndpoint = location.port === '8000' ? 'api.php' : '/api/relay';
     const storageKey = () => ['ujian',state.code,state.classroom,state.number].join(':');
     const markerKey = 'ujian-session-marker';
 
     function rpc(name, ...args) {
       if (typeof google === 'undefined' || !google.script || !google.script.run) {
-        return fetch('api.php',{method:'POST',headers:{'Content-Type':'application/json'},
+        return fetch(apiEndpoint,{method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({action:name,args})})
           .then(async response => {
             let payload;

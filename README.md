@@ -7,9 +7,10 @@ Setelah guru mengisi atau mengubah nilai ISIAN/ESSAY pada kolom kuning, trigger 
 ## Berkas
 
 - `Code.gs` — fungsi server dan menu guru.
-- `Index.html` — tampilan web siswa.
+- `index.html` — tampilan web siswa, menjadi halaman utama Vercel.
 - `appsscript.json` — konfigurasi Apps Script.
-- `api.php` dan `config.php` — jembatan PHP ke backend Apps Script untuk halaman lokal.
+- `api/relay.js` — jembatan API Vercel ke backend Apps Script.
+- `api.php` dan `config.php` — jembatan PHP ke backend Apps Script untuk penggunaan lokal.
 - `Template_Ujian.xlsx` — template impor dengan contoh data dan petunjuk kolom.
 - `generate_template.py` — skrip untuk membuat ulang template Excel.
 
@@ -17,7 +18,7 @@ Setelah guru mengisi atau mengubah nilai ISIAN/ESSAY pada kolom kuning, trigger 
 
 1. Buat Google Spreadsheet kosong, lalu buka **Ekstensi → Apps Script**.
 2. Ganti isi file `Code.gs` dengan isi berkas `Code.gs` pada folder ini.
-3. Klik **+ → HTML**, beri nama persis `Index`, lalu salin isi `Index.html`.
+3. Klik **+ → HTML**, beri nama persis `Index`, lalu salin isi `index.html`.
 4. Buka **Setelan project** (ikon roda gigi), aktifkan **Tampilkan file manifes "appsscript.json" di editor**, lalu ganti isinya dengan berkas `appsscript.json` di folder ini.
 5. Simpan project dan kembali ke spreadsheet. Muat ulang tab spreadsheet.
 6. Dari menu **📝 Ujian**, pilih **Siapkan spreadsheet**. Saat diminta izin Google, tinjau dan berikan izin.
@@ -77,9 +78,9 @@ Pilihan ini menjalankan **halaman siswa** melalui PHP, tetapi data tetap dibaca/
    php -S 0.0.0.0:8000
    ```
 
-7. Di komputer yang menjalankan PHP, buka `http://localhost:8000/Index.html`.
+7. Di komputer yang menjalankan PHP, buka `http://localhost:8000/index.html`.
 
-Jangan membuka `Index.html` dengan klik ganda (`file://`), karena halaman perlu memanggil endpoint PHP `api.php`. Jangan juga menggunakan server statis yang tidak menjalankan PHP.
+Jangan membuka `index.html` dengan klik ganda (`file://`), karena halaman perlu memanggil endpoint PHP `api.php`. Jangan juga menggunakan server statis yang tidak menjalankan PHP.
 
 ### Membuka dari HP di jaringan Wi-Fi yang sama
 
@@ -87,15 +88,24 @@ Jangan membuka `Index.html` dengan klik ganda (`file://`), karena halaman perlu 
 
 1. Jalankan server dengan `php -S 0.0.0.0:8000` seperti di atas.
 2. Di komputer, jalankan `ipconfig` dan cari **IPv4 Address** adaptor Wi-Fi, misalnya `192.168.1.20`.
-3. Buka `http://192.168.1.20:8000/Index.html` di HP. Jika Windows meminta izin firewall, izinkan PHP pada jaringan privat.
+3. Buka `http://192.168.1.20:8000/index.html` di HP. Jika Windows meminta izin firewall, izinkan PHP pada jaringan privat.
 
-Alamat lokal ini hanya berfungsi saat komputer menyala dan HP berada di jaringan yang sama. Untuk membagikan ujian melalui internet, gunakan URL deployment Apps Script atau tempatkan aplikasi PHP di hosting HTTPS yang dapat diakses siswa. Jangan bagikan spreadsheet dengan izin edit publik.
+Alamat lokal ini hanya berfungsi saat komputer menyala dan HP berada di jaringan yang sama. Untuk membagikan ujian melalui internet, gunakan URL deployment Apps Script, Vercel, atau tempatkan aplikasi PHP di hosting HTTPS yang dapat diakses siswa. Jangan bagikan spreadsheet dengan izin edit publik.
 
-## 5. Buat QR code untuk siswa
+## 5. Deploy ke Vercel
+
+1. Pastikan `Code.gs` sudah disimpan dan deployment Apps Script aktif dengan akses **Anyone** serta URL berakhiran `/exec`.
+2. Push file project ke GitHub, lalu di Vercel pilih **Add New → Project** dan impor repository SiMatik.
+3. Biarkan **Framework Preset** sebagai **Other** dan **Root Directory** sebagai folder project. Tidak perlu Build Command atau Output Directory.
+4. Di pengaturan project Vercel, buka **Settings → Environment Variables** dan tambahkan `APPS_SCRIPT_WEB_APP_URL` dengan nilai URL Web App Apps Script yang berakhiran `/exec`. Pilih environment **Production** (tambahkan **Preview** juga jika ingin mengetes preview), lalu simpan. Jangan menambahkan tanda kutip.
+5. Klik **Deploy**. Setelah selesai, buka domain Vercel; halaman akan dimuat dari `index.html`.
+6. Jika URL deployment Apps Script berubah, perbarui environment variable tersebut di Vercel lalu lakukan **Redeploy**.
+
+## 6. Buat QR code untuk siswa
 
 Gunakan menu berbagi QR di browser Chrome (jika tersedia), atau buka layanan pembuat QR code yang dipercaya. Masukkan URL web app `/exec`, unduh gambar QR, lalu cetak atau tampilkan di kelas. Uji hasil pindai dengan HP dalam mode privat sebelum dibagikan. QR hanya berisi tautan; token ujian tetap sebaiknya dibagikan terpisah.
 
-## 6. Mengelola ujian
+## 7. Mengelola ujian
 
 - **Reset siswa** menghapus catatan peserta dan jawaban siswa terpilih agar dapat mengulang. Gunakan setelah memastikan identitas dan kode ujiannya benar.
 - **Arsipkan ujian** menyalin sheet soal, peserta, dan jawaban sebagai nilai tetap ke spreadsheet `Arsip Ujian`, lalu menghapus sheet ujian tersebut dari spreadsheet aktif dan mengubah status ujian menjadi `Diarsipkan`.
